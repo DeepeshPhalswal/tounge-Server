@@ -4,4 +4,3 @@ numpy
 pillow
 requests
 python-dotenv
-picamera2
