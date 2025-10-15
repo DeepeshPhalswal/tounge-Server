@@ -4,9 +4,12 @@ from torchvision import models, transforms
 from PIL import Image
 import os
 import requests
+from dotenv import load_dotenv
 
-MODEL_PATH = "tounge_analysis_ai.pth"
-MODEL_URL = "https://drive.google.com/uc?id=1AbCdEfGhIjKlMnOpQr"  # Replace with your link
+load_dotenv()  # Reads .env file
+
+MODEL_URL = os.getenv("MODEL_URL")
+MODEL_PATH = os.getenv("MODEL_PATH")
 
 def ensure_model():
     if not os.path.exists(MODEL_PATH):
@@ -91,4 +94,5 @@ if __name__ == "__main__":
         print(f"\n✅ Predicted Class: {result}")
     else:
         print("❌ Image not found! Please check the path.")
+
 
