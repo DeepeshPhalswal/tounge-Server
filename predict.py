@@ -3,6 +3,19 @@ import torch.nn as nn
 from torchvision import models, transforms
 from PIL import Image
 import os
+import requests
+
+MODEL_PATH = "tounge_analysis_ai.pth"
+MODEL_URL = "https://drive.google.com/uc?id=1AbCdEfGhIjKlMnOpQr"  # Replace with your link
+
+def ensure_model():
+    if not os.path.exists(MODEL_PATH):
+        print("🔽 Model file not found — downloading...")
+        r = requests.get(MODEL_URL, allow_redirects=True)
+        open(MODEL_PATH, "wb").write(r.content)
+        print("✅ Model downloaded successfully.")
+    else:
+        print("✅ Model already exists.")
 
 # ======================
 # 1. Configuration
@@ -78,3 +91,4 @@ if __name__ == "__main__":
         print(f"\n✅ Predicted Class: {result}")
     else:
         print("❌ Image not found! Please check the path.")
+
