@@ -6,6 +6,7 @@ import numpy as np
 from PIL import Image
 import base64
 from dotenv import load_dotenv
+from predict import predict_image
 
 # ------------------------------------------
 # LOAD ENVIRONMENT VARIABLES
@@ -35,6 +36,9 @@ def process_image_ai(image):
     AI or OpenCV-based image analysis.
     Replace with your actual AI inference code later.
     """
+    # Call the predict_image function from predict.py
+    result = predict_image(image)
+
     # Convert to grayscale
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -52,6 +56,7 @@ def process_image_ai(image):
     # Example AI result text
     ai_text = (
         f"🧠 AI Analysis:\n"
+        f"- Result: {result}\n"
         f"- Mean Brightness: {mean_brightness:.2f}\n"
         f"- Contrast: {contrast:.2f}\n"
         f"- Edges Overlayed (t1={EDGE_THRESHOLD1}, t2={EDGE_THRESHOLD2})"
