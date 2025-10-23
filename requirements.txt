@@ -1,0 +1,9 @@
+flask
+opencv-python
+numpy
+pillow
+requests
+python-dotenv
+torch
+torchvision
+Pillow
