@@ -3,7 +3,6 @@ from datetime import datetime
 from flask import Flask, request, jsonify, send_file
 import cv2
 import numpy as np
-from PIL import Image
 import base64
 from dotenv import load_dotenv
 from predict import predict_image
@@ -11,7 +10,7 @@ from predict import predict_image
 # ------------------------------------------
 # LOAD ENVIRONMENT VARIABLES
 # ------------------------------------------
-load_dotenv()  # Load from .env file
+load_dotenv()
 
 UPLOAD_DIR = os.getenv("UPLOAD_DIR", "uploads")
 PROCESSED_DIR = os.getenv("PROCESSED_DIR", "processed")
@@ -32,34 +31,33 @@ app = Flask(__name__)
 # AI IMAGE PROCESSING FUNCTION
 # ------------------------------------------
 def process_image_ai(image):
-    """
-    AI or OpenCV-based image analysis.
-    Replace with your actual AI inference code later.
-    """
-    # Call the predict_image function from predict.py
-    result = predict_image(image)
+    """Run AI + OpenCV processing."""
+    try:
+        # AI Prediction
+        result = predict_image(image)
+    except Exception as e:
+        result = f"AI Prediction Error: {str(e)}"
 
     # Convert to grayscale
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-    # Edge detection (parameterized from .env)
+    # Edge detection
     edges = cv2.Canny(gray, EDGE_THRESHOLD1, EDGE_THRESHOLD2)
 
-    # Compute brightness + contrast
+    # Brightness & contrast
     mean_brightness = np.mean(gray)
     contrast = np.std(gray)
 
-    # Overlay detected edges in red for visualization
+    # Overlay edges in red
     edges_colored = cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR)
     overlay = cv2.addWeighted(image, 1 - AI_OVERLAY_WEIGHT, edges_colored, AI_OVERLAY_WEIGHT, 0)
 
-    # Example AI result text
     ai_text = (
         f"🧠 AI Analysis:\n"
         f"- Result: {result}\n"
         f"- Mean Brightness: {mean_brightness:.2f}\n"
         f"- Contrast: {contrast:.2f}\n"
-        f"- Edges Overlayed (t1={EDGE_THRESHOLD1}, t2={EDGE_THRESHOLD2})"
+        f"- Edge Thresholds: ({EDGE_THRESHOLD1}, {EDGE_THRESHOLD2})"
     )
 
     return overlay, ai_text
@@ -82,12 +80,11 @@ def process_image():
     upload_path = os.path.join(UPLOAD_DIR, filename)
     file.save(upload_path)
 
-    # Read image
     img = cv2.imread(upload_path)
     if img is None:
         return jsonify({"error": "Invalid image format"}), 400
 
-    # Process through AI
+    # Process image
     processed_img, result_text = process_image_ai(img)
 
     # Save processed image
@@ -95,7 +92,7 @@ def process_image():
     processed_path = os.path.join(PROCESSED_DIR, processed_name)
     cv2.imwrite(processed_path, processed_img)
 
-    # Convert processed image to base64 for response
+    # Convert processed image to base64
     _, buffer = cv2.imencode(".jpg", processed_img)
     img_base64 = base64.b64encode(buffer).decode("utf-8")
 
@@ -107,7 +104,7 @@ def process_image():
 
 @app.route("/get_processed/<filename>")
 def get_processed(filename):
-    """Serve processed image files."""
+    """Serve processed image."""
     path = os.path.join(PROCESSED_DIR, filename)
     if not os.path.exists(path):
         return jsonify({"error": "File not found"}), 404
